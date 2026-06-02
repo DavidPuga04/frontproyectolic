@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Login from './Login';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,7 +30,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/zonas/')
+    axios.get(`${API_URL}/api/zonas/`)
       .then(res => setZonas(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -50,7 +52,7 @@ function App() {
 
     try {
       await axios.post(
-        'http://127.0.0.1:8000/api/tramites/validar_cedula/',
+        `${API_URL}/api/tramites/validar_cedula/`,
         { cedula_numero: cedula }
       );
 
@@ -81,8 +83,8 @@ function App() {
       formData.append('cedula_numero', cedula);
 
       const url = tramiteId
-        ? `http://127.0.0.1:8000/api/tramites/${tramiteId}/`
-        : `http://127.0.0.1:8000/api/tramites/`;
+        ? `${API_URL}/api/tramites/${tramiteId}/`
+        : `${API_URL}/api/tramites/`;
 
       const method = tramiteId ? 'patch' : 'post';
 
@@ -108,12 +110,12 @@ function App() {
     try {
 
       await axios.patch(
-        `http://127.0.0.1:8000/api/tramites/${tramiteId}/`,
+        `${API_URL}/api/tramites/${tramiteId}/`,
         { zona: parseInt(zona) }
       );
 
       const res = await axios.get(
-        `http://127.0.0.1:8000/api/tramites/${tramiteId}/recomendar_sucursal/`
+        `${API_URL}/api/tramites/${tramiteId}/recomendar_sucursal/`
       );
 
       setRecomendacion(res.data);
@@ -254,69 +256,27 @@ function App() {
 
         {/* PASO 5 */}
         {paso === 5 && recomendacion && (
-          <div style={{
-          padding: '20px',
-          border: '2px solid #007bff',
-          background: '#fff',
-          borderRadius: '10px',
-          textAlign: 'center'
-        }}>
+          <div style={{ padding: '20px', border: '2px solid #007bff', background: '#fff', borderRadius: '10px', textAlign: 'center' }}>
 
-    <h2 style={{ color: '#007bff' }}>
-      🎫 Ticket Inteligente
-    </h2>
+            <h2 style={{ color: '#007bff' }}>🎫 Ticket Inteligente</h2>
 
-    <p>
-      Te recomendamos asistir a la sucursal de:
-    </p>
+            <p>Te recomendamos asistir a la sucursal de:</p>
 
-    <div style={{
-      fontSize: '1.2em',
-      margin: '20px 0',
-      background: '#e7f3ff',
-      padding: '15px',
-      borderRadius: '8px'
-    }}>
+            <div style={{ fontSize: '1.4em', margin: '20px 0', background: '#e7f3ff', padding: '15px' }}>
+              📍 <strong>{recomendacion.sucursal}</strong><br />
+              🕒 Espera: <strong>{recomendacion.tiempo_espera} min</strong>
+            </div>
 
-      📍 <strong>{recomendacion.sucursal}</strong>
+            <p style={{ color: 'green', fontWeight: 'bold' }}>
+              ✨ ¡Ahorraste {recomendacion.ahorro_estimado} min!
+            </p>
 
-      <br /><br />
+            <button onClick={() => window.print()}>
+              Imprimir
+            </button>
 
-      🕒 Espera:
-      <strong>
-        {" "}{recomendacion.tiempo_espera} min
-      </strong>
-
-      <br /><br />
-
-      🚗 Distancia:
-      <strong>
-        {" "}{recomendacion.distancia_km} km
-      </strong>
-
-      <br /><br />
-
-      ⏱ Tiempo total estimado:
-      <strong>
-        {" "}{recomendacion.tiempo_total} min
-      </strong>
-
-    </div>
-
-    <p style={{
-      color: 'green',
-      fontWeight: 'bold',
-      fontSize: '1.1em'
-    }}>
-      ✨ Ahorras aproximadamente {recomendacion.ahorro_estimado} min respecto a la opción menos conveniente
-    </p>
-
-    <button onClick={() => window.print()}>
-      Imprimir
-    </button>
-
-  </div>
-)}
+          </div>
+        )}
 
       </main>
     </div>
